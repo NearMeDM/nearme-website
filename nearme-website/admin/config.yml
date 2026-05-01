@@ -1,0 +1,161 @@
+# ═══════════════════════════════════════════════════════════
+#  NearMe Digital Marketing Agency — Netlify CMS Config
+#  Admin URL: https://nearmedigitalagency.com/admin
+#  GitHub repo: update "repo:" below with your GitHub repo
+# ═══════════════════════════════════════════════════════════
+
+backend:
+  name: git-gateway
+  branch: main   # change to "master" if your repo uses master
+
+# ── Media / Image uploads ──────────────────────────────────
+media_folder: "images/uploads"          # where uploaded images are stored
+public_folder: "/images/uploads"        # path used in blog posts
+
+# ── Editorial Workflow (draft → review → publish) ──────────
+publish_mode: editorial_workflow
+
+# ── Site URL (for preview links in CMS) ────────────────────
+site_url: https://nearmedigitalagency.com
+
+# ═══════════════════════════════════════════════════════════
+#  COLLECTIONS
+# ═══════════════════════════════════════════════════════════
+collections:
+
+  # ── 1. BLOG POSTS ────────────────────────────────────────
+  - name: "blog"
+    label: "Blog Posts"
+    label_singular: "Blog Post"
+    folder: "blog/_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: "blog/{{slug}}"
+    summary: "{{title}} — {{date}}"
+    sortable_fields: ["date", "title", "category"]
+    fields:
+
+      - label: "Post Title"
+        name: "title"
+        widget: "string"
+        hint: "Keep it under 60 characters for best SEO. Include keywords like 'digital marketing Kaliyaganj'."
+
+      - label: "Publish Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "DD MMM YYYY"
+        time_format: false
+        default: ""
+
+      - label: "SEO Meta Description"
+        name: "description"
+        widget: "text"
+        hint: "150–160 characters. This shows in Google search results. Include your target keyword."
+        pattern: [".{50,160}", "Must be between 50 and 160 characters"]
+
+      - label: "Featured Image"
+        name: "thumbnail"
+        widget: "image"
+        required: false
+        hint: "Recommended size: 1200×630px. Used for social sharing previews too."
+        media_library:
+          config:
+            multiple: false
+
+      - label: "Image Alt Text"
+        name: "thumbnail_alt"
+        widget: "string"
+        required: false
+        hint: "Describe the image for Google and screen readers. E.g. 'Digital marketing tips for small businesses in Kaliyaganj'"
+
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Google Business Tips", value: "google-business" }
+          - { label: "Social Media Marketing", value: "social-media" }
+          - { label: "Facebook & Google Ads", value: "ads" }
+          - { label: "Website & SEO", value: "website-seo" }
+          - { label: "Local Business Growth", value: "local-business" }
+          - { label: "Digital Marketing Basics", value: "basics" }
+          - { label: "NearMe Case Studies", value: "case-studies" }
+          - { label: "North Bengal Business News", value: "north-bengal" }
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        hint: "Add relevant tags separated by comma. E.g. digital marketing, kaliyaganj, google ads"
+        required: false
+
+      - label: "Author"
+        name: "author"
+        widget: "select"
+        default: "Partha Bhowmick"
+        options:
+          - "Partha Bhowmick"
+          - "NearMe Team"
+
+      - label: "Reading Time (minutes)"
+        name: "read_time"
+        widget: "number"
+        default: 5
+        value_type: "int"
+        min: 1
+        max: 30
+
+      - label: "Featured Post?"
+        name: "featured"
+        widget: "boolean"
+        default: false
+        hint: "Featured posts appear at the top of the blog page."
+
+      - label: "Post Content"
+        name: "body"
+        widget: "markdown"
+        hint: "Write your blog post here. Use headings (H2, H3), bullet points, and bold text for better readability and SEO."
+        buttons: [bold, italic, code, link, heading-two, heading-three, bulleted-list, numbered-list, quote]
+        editor_components: [image, code-block]
+
+      - label: "Call to Action Text"
+        name: "cta_text"
+        widget: "string"
+        default: "Want to grow your business online? Contact NearMe today for a free consultation."
+        required: false
+
+      - label: "Call to Action Button Label"
+        name: "cta_label"
+        widget: "string"
+        default: "Get Free Consultation →"
+        required: false
+
+  # ── 2. SITE SETTINGS ─────────────────────────────────────
+  - name: "settings"
+    label: "Site Settings"
+    files:
+
+      - label: "Blog Page Settings"
+        name: "blog_settings"
+        file: "blog/_data/settings.json"
+        fields:
+          - label: "Blog Page Title"
+            name: "title"
+            widget: "string"
+            default: "Digital Marketing Blog | NearMe Kaliyaganj"
+          - label: "Blog Page Description"
+            name: "description"
+            widget: "text"
+            default: "Tips, guides and case studies on digital marketing for small businesses in Kaliyaganj and North Bengal."
+          - label: "Posts per page"
+            name: "posts_per_page"
+            widget: "number"
+            default: 6
+          - label: "Show Author on posts?"
+            name: "show_author"
+            widget: "boolean"
+            default: true
+          - label: "Enable Comments?"
+            name: "enable_comments"
+            widget: "boolean"
+            default: false
+            hint: "Currently uses a simple WhatsApp comment CTA — not a full comment system."

@@ -1,0 +1,5 @@
+# NearMe — Netlify Redirects
+# NOTE: /blog redirect intentionally removed.
+# Netlify auto-serves blog/index.html for /blog and /blog/ — no redirect needed.
+# Adding it caused a redirect loop on static HTML sites.
+/admin   /admin/   301
