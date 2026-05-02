@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- ═══════════════════════════════════════
+       MAIN PAGES
+  ════════════════════════════════════════ -->
+
+  <!-- Home Page — highest priority -->
+  <url>
+    <loc>https://nearmedigitalagency.com/</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://nearmedigitalagency.com/"/>
+    <image:image>
+      <image:loc>https://nearmedigitalagency.com/nearme-logo.png</image:loc>
+      <image:title>NearMe Digital Marketing Agency Kaliyaganj</image:title>
+    </image:image>
+  </url>
+
+  <!-- Services Section -->
+  <url>
+    <loc>https://nearmedigitalagency.com/#services</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Portfolio Section -->
+  <url>
+    <loc>https://nearmedigitalagency.com/#portfolio</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Package / Bundle Section -->
+  <url>
+    <loc>https://nearmedigitalagency.com/#package</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Why Us Section -->
+  <url>
+    <loc>https://nearmedigitalagency.com/#why-us</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Section -->
+  <url>
+    <loc>https://nearmedigitalagency.com/#contact</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════
+       BLOG PAGES
+  ════════════════════════════════════════ -->
+
+  <!-- Blog Index — high priority for SEO -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/</loc>
+    <lastmod>2025-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Blog Post 1 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/how-to-rank-1-on-google-maps-kaliyaganj.html</loc>
+    <lastmod>2025-04-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post 2 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/facebook-ads-guide-north-bengal-small-business.html</loc>
+    <lastmod>2025-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post 3 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/social-media-tips-bengali-business.html</loc>
+    <lastmod>2025-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog Post 4 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/website-seo-small-business-kaliyaganj.html</loc>
+    <lastmod>2025-03-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog Post 5 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/case-study-grocery-store-google-maps-kaliyaganj.html</loc>
+    <lastmod>2025-03-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post 6 -->
+  <url>
+    <loc>https://nearmedigitalagency.com/blog/whatsapp-business-setup-guide.html</loc>
+    <lastmod>2025-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
