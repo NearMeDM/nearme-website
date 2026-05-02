@@ -1,22 +1,33 @@
 # ═══════════════════════════════════════════════════════════
-#  NearMe Digital Marketing Agency — Netlify CMS Config
-#  Admin URL: https://nearmedigitalagency.com/admin
-#  GitHub repo: update "repo:" below with your GitHub repo
+#  NearMe Digital Marketing Agency — Decap CMS Config
+#  (Decap CMS = officially maintained fork of Netlify CMS)
+#
+#  Admin URL : https://nearmedigitalagency.com/admin/
+#
+#  REQUIRED SETUP in Netlify dashboard before this works:
+#  1. Site config → Identity → Enable Identity
+#  2. Identity → Registration → Change to "Invite only"
+#  3. Identity → Services → Git Gateway → Enable
+#  4. Identity → Invite users → enter your email
+#  5. Check email → accept invite → set password
+#  6. Then go to /admin/ and log in
 # ═══════════════════════════════════════════════════════════
+
+# IMPORTANT: site_url must match your Netlify site URL exactly
+site_url: https://nearmedigitalagency.com
 
 backend:
   name: git-gateway
-  branch: main   # change to "master" if your repo uses master
+  branch: main
 
-# ── Media / Image uploads ──────────────────────────────────
-media_folder: "images/uploads"          # where uploaded images are stored
-public_folder: "/images/uploads"        # path used in blog posts
+# ── Media uploads ──────────────────────────────────────────
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
 
-# ── Editorial Workflow (draft → review → publish) ──────────
+# ── Editorial Workflow ─────────────────────────────────────
+# Posts go: Draft → In Review → Published
+# Remove this line if you want instant publish on save
 publish_mode: editorial_workflow
-
-# ── Site URL (for preview links in CMS) ────────────────────
-site_url: https://nearmedigitalagency.com
 
 # ═══════════════════════════════════════════════════════════
 #  COLLECTIONS
