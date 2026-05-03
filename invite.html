@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Set Your Password — NearMe Admin</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans','Segoe UI',system-ui,sans-serif;background:#060d1e;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#0d1f3c;border:1.5px solid rgba(201,153,58,.3);border-radius:22px;padding:40px 36px;max-width:440px;width:100%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+    .logo{width:56px;height:56px;background:linear-gradient(135deg,#e8c46a,#c9993a);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px}
+    h1{font-size:21px;font-weight:700;color:#e8c46a;margin-bottom:8px}
+    .subtitle{font-size:13.5px;color:#64748b;margin-bottom:28px;line-height:1.6}
+    .form-group{margin-bottom:16px;text-align:left}
+    label{display:block;font-size:11.5px;font-weight:700;color:#64748b;margin-bottom:6px;letter-spacing:.8px;text-transform:uppercase}
+    input[type=password]{width:100%;background:#060d1e;border:1.5px solid rgba(201,153,58,.2);color:#f0f4ff;padding:13px 16px;border-radius:12px;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s}
+    input[type=password]:focus{border-color:#c9993a;background:#080f1f}
+    input::placeholder{color:#1e293b}
+    .btn{width:100%;background:linear-gradient(135deg,#e8c46a,#c9993a);color:#060d1e;border:none;padding:15px;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover:not(:disabled){opacity:.9}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .msg{margin-top:16px;padding:12px 16px;border-radius:12px;font-size:13.5px;line-height:1.65;display:none;text-align:left}
+    .msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5;display:block}
+    .msg.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;display:block}
+    .msg.info{background:rgba(201,153,58,.08);border:1px solid rgba(201,153,58,.2);color:#fcd34d;display:block}
+    .spinner{width:18px;height:18px;border:2.5px solid rgba(6,13,30,.35);border-top-color:#060d1e;border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .bar-wrap{height:4px;background:#0f172a;border-radius:2px;margin-top:7px;overflow:hidden}
+    .bar{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
+    .bar-hint{font-size:11px;margin-top:4px;min-height:14px}
+    hr{border:none;border-top:1px solid rgba(201,153,58,.1);margin:24px 0}
+    .back{font-size:12px;color:#334155;text-decoration:none}
+    .back:hover{color:#64748b}
+    .debug{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:12px;margin-top:14px;font-size:11.5px;color:#475569;text-align:left;display:none;word-break:break-all;line-height:1.8}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">📍</div>
+  <h1 id="cardTitle">Set Your Admin Password</h1>
+  <p class="subtitle" id="cardSubtitle">Create a password to access the NearMe Blog admin panel.</p>
+
+  <div id="formSection">
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="pw1" placeholder="Minimum 8 characters" autocomplete="new-password" oninput="strengthCheck()">
+      <div class="bar-wrap"><div class="bar" id="pwBar"></div></div>
+      <div class="bar-hint" id="pwHint"></div>
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="pw2" placeholder="Type password again" autocomplete="new-password">
+    </div>
+    <button class="btn" id="submitBtn" onclick="doSubmit()">
+      Set Password &amp; Enter Admin →
+    </button>
+    <div class="msg" id="msgBox"></div>
+    <div class="debug" id="debugBox"></div>
+  </div>
+
+  <div id="noTokenSection" style="display:none">
+    <div class="msg error" style="display:block">
+      No invite token found.<br>Please click the exact link from your invite email.
+    </div>
+    <p style="font-size:13px;color:#475569;margin-top:14px;line-height:1.7">Need a new invite? Contact Partha:<br><strong style="color:#94a3b8">+91 7001 069 520</strong></p>
+  </div>
+
+  <hr>
+  <a href="/" class="back">← Back to NearMe website</a>
+</div>
+
+<script>
+(function(){
+
+  /* ── 1. Parse token from URL hash ── */
+  var rawHash = window.location.hash || '';
+  var params  = {};
+  rawHash.replace(/^#/,'').split('&').forEach(function(p){
+    var kv = p.split('=');
+    if(kv.length >= 2) params[kv[0]] = kv.slice(1).join('=');
+  });
+
+  var inviteToken   = params['invite_token']       || null;
+  var recoveryToken = params['recovery_token']      || null;
+  var token         = inviteToken || recoveryToken  || null;
+  var tokenType     = inviteToken ? 'invite' : recoveryToken ? 'recovery' : null;
+
+  if(!token){
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('noTokenSection').style.display = 'block';
+    return;
+  }
+
+  if(tokenType === 'recovery'){
+    document.getElementById('cardTitle').textContent = 'Reset Your Password';
+    document.getElementById('cardSubtitle').textContent = 'Enter a new password for your NearMe admin account.';
+  }
+
+  /* ── 2. Netlify site details ── */
+  // IMPORTANT: This must match the Site URL in Netlify → Site configuration → Site details
+  var SITE_URL  = 'https://nearmedigitalagency.com';
+  var API_URL   = SITE_URL + '/.netlify/identity';
+
+  /* ── 3. UI helpers ── */
+  function showMsg(text, type){
+    var el = document.getElementById('msgBox');
+    el.textContent = text;
+    el.className = 'msg ' + type;
+  }
+  function showDebug(obj){
+    var el = document.getElementById('debugBox');
+    el.style.display = 'block';
+    el.textContent = JSON.stringify(obj, null, 2);
+  }
+  function setLoading(on){
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? '<div class="spinner"></div> Setting password…'
+      : 'Set Password &amp; Enter Admin →';
+  }
+
+  window.strengthCheck = function(){
+    var pw  = document.getElementById('pw1').value;
+    var bar = document.getElementById('pwBar');
+    var hint= document.getElementById('pwHint');
+    if(!pw){ bar.style.width='0'; bar.style.background=''; hint.textContent=''; return; }
+    var score = 0;
+    if(pw.length >= 8)  score++;
+    if(pw.length >= 12) score++;
+    if(/[A-Z]/.test(pw)) score++;
+    if(/[0-9]/.test(pw)) score++;
+    if(/[^A-Za-z0-9]/.test(pw)) score++;
+    if(score <= 1){ bar.style.width='25%'; bar.style.background='#ef4444'; hint.textContent='Too weak'; hint.style.color='#ef4444'; }
+    else if(score <= 3){ bar.style.width='60%'; bar.style.background='#f59e0b'; hint.textContent='Good'; hint.style.color='#f59e0b'; }
+    else{ bar.style.width='100%'; bar.style.background='#10b981'; hint.textContent='Strong ✓'; hint.style.color='#10b981'; }
+  };
+
+  /* ── 4. Submit — calls Netlify Identity API directly via fetch ── */
+  window.doSubmit = function(){
+    var pw1 = document.getElementById('pw1').value;
+    var pw2 = document.getElementById('pw2').value;
+
+    if(pw1.length < 8){ showMsg('Password must be at least 8 characters.','error'); return; }
+    if(pw1 !== pw2)   { showMsg('Passwords do not match.','error'); return; }
+
+    setLoading(true);
+    showMsg('Verifying invite and setting password…','info');
+
+    /* ── Choose correct API endpoint based on token type ── */
+    var endpoint, body;
+
+    if(tokenType === 'invite'){
+      // POST /.netlify/identity/verify — accepts the invite token
+      endpoint = API_URL + '/verify';
+      body = JSON.stringify({ token: token, type: 'invite', password: pw1 });
+    } else {
+      // POST /.netlify/identity/recover — for password reset
+      endpoint = API_URL + '/recover';
+      body = JSON.stringify({ token: token });
+    }
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    })
+    .then(function(res){
+      return res.json().then(function(data){ return { ok: res.ok, status: res.status, data: data }; });
+    })
+    .then(function(result){
+
+      if(!result.ok){
+        setLoading(false);
+        var errMsg = (result.data && (result.data.error_description || result.data.msg || result.data.error)) || ('HTTP ' + result.status);
+        if(errMsg.indexOf('expired') > -1 || errMsg.indexOf('already') > -1){
+          showMsg('This invite link has expired or already been used. Ask Partha to send a new invite.','error');
+        } else {
+          showMsg('Error: ' + errMsg,'error');
+          showDebug(result.data);
+        }
+        return;
+      }
+
+      /* ── Invite accepted — now set password via /user endpoint ── */
+      var accessToken = result.data.access_token;
+      if(!accessToken){
+        setLoading(false);
+        showMsg('Invite accepted but no access token returned. Please try logging in at /admin/.','error');
+        showDebug(result.data);
+        return;
+      }
+
+      if(tokenType === 'invite'){
+        /* Update password now that we have an access token */
+        return fetch(API_URL + '/user', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+          },
+          body: JSON.stringify({ password: pw1 })
+        })
+        .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,data:d}; }); })
+        .then(function(upd){
+          if(!upd.ok){
+            setLoading(false);
+            showMsg('Invite accepted but password update failed: ' + (upd.data.msg||'unknown error'),'error');
+            showDebug(upd.data);
+            return;
+          }
+          /* ── Success ── */
+          // Save token to localStorage so /admin/ sees the user as logged in
+          try{
+            var store = {
+              currentUser: upd.data,
+              access_token: accessToken,
+              expires_at: result.data.expires_at || (Date.now() + 3600000)
+            };
+            localStorage.setItem('gotrue.user', JSON.stringify(upd.data));
+            localStorage.setItem('netlify-identity-user', JSON.stringify(upd.data));
+          }catch(e){}
+          showMsg('✅ Password set! Redirecting to admin panel…','success');
+          setLoading(false);
+          setTimeout(function(){ window.location.href = '/admin/'; }, 1200);
+        });
+
+      } else {
+        /* Recovery — update password */
+        return fetch(API_URL + '/user', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+          },
+          body: JSON.stringify({ password: pw1 })
+        })
+        .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,data:d}; }); })
+        .then(function(upd){
+          setLoading(false);
+          if(!upd.ok){
+            showMsg('Password update failed: ' + (upd.data.msg||'unknown'),'error');
+            showDebug(upd.data);
+            return;
+          }
+          showMsg('✅ Password reset! Redirecting to admin…','success');
+          setTimeout(function(){ window.location.href = '/admin/'; }, 1200);
+        });
+      }
+    })
+    .catch(function(err){
+      setLoading(false);
+      showMsg('Network error: ' + err.message + '. Check your internet connection and try again.','error');
+    });
+  };
+
+  /* Allow Enter key to submit */
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !document.getElementById('submitBtn').disabled) doSubmit();
+  });
+
+  /* Auto-focus */
+  window.addEventListener('load', function(){ document.getElementById('pw1').focus(); });
+
+})();
+</script>
+</body>
+</html>
