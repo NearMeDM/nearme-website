@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Set Your Password — NearMe Admin</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans','Segoe UI',system-ui,sans-serif;background:#060d1e;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#0d1f3c;border:1.5px solid rgba(201,153,58,.3);border-radius:22px;padding:40px 36px;max-width:420px;width:100%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+    .logo{width:56px;height:56px;background:linear-gradient(135deg,#e8c46a,#c9993a);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px}
+    h1{font-size:21px;font-weight:700;color:#e8c46a;margin-bottom:8px}
+    .subtitle{font-size:13.5px;color:#64748b;margin-bottom:28px;line-height:1.6}
+    .form-group{margin-bottom:16px;text-align:left}
+    label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+    input[type=password],input[type=email]{width:100%;background:#060d1e;border:1.5px solid rgba(201,153,58,.2);color:#f0f4ff;padding:13px 16px;border-radius:12px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+    input:focus{border-color:#c9993a}
+    input::placeholder{color:#334155}
+    .btn{width:100%;background:linear-gradient(135deg,#e8c46a,#c9993a);color:#060d1e;border:none;padding:14px;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;margin-top:6px}
+    .btn:hover{opacity:.9}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .status{margin-top:14px;font-size:13px;min-height:20px;line-height:1.6;padding:10px 14px;border-radius:10px;display:none}
+    .status.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;display:block}
+    .status.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#6ee7b7;display:block}
+    .status.info{background:rgba(201,153,58,.08);border:1px solid rgba(201,153,58,.15);color:#fcd34d;display:block}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(6,13,30,.3);border-top-color:#060d1e;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .pw-strength{height:4px;border-radius:2px;margin-top:6px;transition:all .3s;background:#1e293b}
+    .pw-strength.weak{background:#ef4444;width:33%}
+    .pw-strength.medium{background:#f59e0b;width:66%}
+    .pw-strength.strong{background:#10b981;width:100%}
+    .pw-hint{font-size:11px;color:#475569;margin-top:4px}
+    .divider{border:none;border-top:1px solid rgba(201,153,58,.1);margin:24px 0}
+    .back{font-size:12.5px;color:#334155;text-decoration:none;display:block;margin-top:4px}
+    .back:hover{color:#64748b}
+    .no-token{display:none}
+    .no-token.visible{display:block}
+  </style>
+</head>
+<body>
+
+<div class="card" id="mainCard">
+  <div class="logo">📍</div>
+  <h1 id="cardTitle">Set Your Admin Password</h1>
+  <p class="subtitle" id="cardSubtitle">Create a password to access the NearMe Blog admin panel.</p>
+
+  <!-- Password form — shown when token is valid -->
+  <div id="formSection">
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="pw1" placeholder="Min 8 characters" oninput="checkStrength()" autocomplete="new-password">
+      <div class="pw-strength" id="pwStrength"></div>
+      <div class="pw-hint" id="pwHint"></div>
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="pw2" placeholder="Repeat password" autocomplete="new-password">
+    </div>
+    <button class="btn" id="submitBtn" onclick="submitPassword()">
+      Set Password & Enter Admin →
+    </button>
+    <div class="status" id="statusMsg"></div>
+  </div>
+
+  <!-- No token message -->
+  <div class="no-token" id="noTokenSection">
+    <div class="status error" style="display:block">
+      No invite token found in this URL.<br>Please click the exact link from your invite email — do not type the URL manually.
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:#475569;line-height:1.7">
+      Ask Partha for a new invite:<br>
+      <strong style="color:#94a3b8">+91 7001 069 520</strong>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <a href="/" class="back">← Back to website</a>
+</div>
+
+<!--
+  GoTrue JS — the underlying auth library used by Netlify Identity.
+  We use it directly so we control exactly what happens with the token.
+  This is more reliable than the widget which has its own UI lifecycle.
+-->
+<script src="https://cdn.jsdelivr.net/npm/gotrue-js@0.9.29/browser/gotrue.min.js"></script>
+
+<script>
+(function(){
+
+  // ── Config ──────────────────────────────────────────────
+  // Replace this with your Netlify site URL (the .netlify.app URL OR your custom domain)
+  var SITE_URL = 'https://nearmedigitalagency.com';
+  var GOTRUE_URL = SITE_URL + '/.netlify/identity';
+
+  // ── Read token from URL hash ─────────────────────────────
+  var hash = window.location.hash || '';
+  var params = {};
+  hash.replace(/^#/, '').split('&').forEach(function(pair){
+    var kv = pair.split('=');
+    if(kv.length === 2) params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
+  });
+
+  var token = params['invite_token'] || params['recovery_token'] || params['confirmation_token'] || null;
+  var tokenType = params['invite_token'] ? 'invite'
+                : params['recovery_token'] ? 'recovery'
+                : params['confirmation_token'] ? 'signup'
+                : null;
+
+  // ── No token — show error ────────────────────────────────
+  if(!token){
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('noTokenSection').classList.add('visible');
+    return;
+  }
+
+  // ── Update UI based on token type ───────────────────────
+  if(tokenType === 'recovery'){
+    document.getElementById('cardTitle').textContent = 'Reset Your Password';
+    document.getElementById('cardSubtitle').textContent = 'Enter a new password for your NearMe admin account.';
+  }
+
+  // ── Initialise GoTrue ───────────────────────────────────
+  var auth = new GoTrue({
+    APIUrl: GOTRUE_URL,
+    setCookie: true,
+    audience: ''
+  });
+
+  // ── Helper functions ─────────────────────────────────────
+  function showStatus(msg, type){
+    var el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.className = 'status ' + (type || 'info');
+  }
+
+  function setLoading(loading){
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="spinner"></span> Setting password…'
+      : 'Set Password & Enter Admin →';
+  }
+
+  function checkStrength(){
+    var pw = document.getElementById('pw1').value;
+    var bar = document.getElementById('pwStrength');
+    var hint = document.getElementById('pwHint');
+    if(!pw){ bar.className = 'pw-strength'; hint.textContent = ''; return; }
+    var strong = pw.length >= 10 && /[A-Z]/.test(pw) && /[0-9]/.test(pw);
+    var medium = pw.length >= 8;
+    if(strong){ bar.className = 'pw-strength strong'; hint.textContent = '✓ Strong password'; hint.style.color = '#10b981'; }
+    else if(medium){ bar.className = 'pw-strength medium'; hint.textContent = 'Good — add numbers or capitals to strengthen'; hint.style.color = '#f59e0b'; }
+    else{ bar.className = 'pw-strength weak'; hint.textContent = 'Too short — minimum 8 characters'; hint.style.color = '#ef4444'; }
+  }
+  window.checkStrength = checkStrength;
+
+  // ── Submit password ──────────────────────────────────────
+  window.submitPassword = function(){
+    var pw1 = document.getElementById('pw1').value;
+    var pw2 = document.getElementById('pw2').value;
+
+    if(pw1.length < 8){
+      showStatus('Password must be at least 8 characters.', 'error'); return;
+    }
+    if(pw1 !== pw2){
+      showStatus('Passwords do not match. Please try again.', 'error'); return;
+    }
+
+    setLoading(true);
+    showStatus('Verifying your invite and setting password…', 'info');
+
+    // Use GoTrue to accept the invite token with the new password
+    auth.acceptInvite(token, pw1, true)
+      .then(function(response){
+        showStatus('✅ Password set successfully! Redirecting to admin…', 'success');
+        setLoading(false);
+        // Store the session
+        setTimeout(function(){ window.location.href = '/admin/'; }, 1200);
+      })
+      .catch(function(err){
+        console.error('acceptInvite error:', err);
+        setLoading(false);
+
+        // Handle different error types
+        var errMsg = (err && err.json && err.json.error_description)
+          || (err && err.json && err.json.msg)
+          || (err && err.message)
+          || 'Unknown error';
+
+        if(errMsg.indexOf('already been used') > -1 || errMsg.indexOf('expired') > -1){
+          showStatus('This invite link has expired or already been used. Please ask Partha to send a new invite to +91 7001069520.', 'error');
+        } else if(errMsg.indexOf('Invalid') > -1){
+          showStatus('Invalid invite token. Make sure you clicked the exact link from your email without modifying it.', 'error');
+        } else {
+          showStatus('Error: ' + errMsg + '. Please request a new invite.', 'error');
+        }
+      });
+  };
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') window.submitPassword();
+  });
+
+  // Auto-focus password field
+  document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('pw1').focus();
+  });
+
+})();
+</script>
+
+</body>
+</html>
