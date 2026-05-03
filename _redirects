@@ -1,0 +1,9 @@
+# NearMe — Netlify Redirects
+
+# Admin panel
+/admin   /admin/   301
+
+# Route invite + recovery links to dedicated page
+# Netlify Identity sends links like: https://site.com/#invite_token=xxx
+# The /* rule below catches these hash-based URLs
+/invite  /invite.html  200
